@@ -40,7 +40,7 @@ jobs:
             -e SYNAPSE_SERVER_NAME=localhost \
             -e SYNAPSE_REPORT_STATS=no \
             matrixdotorg/synapse:latest generate
-          cat << EOF >> synapse_data/homeserver.yaml
+          cat <<EOF >> synapse_data/homeserver.yaml
 database:
   name: psycopg2
   args:
