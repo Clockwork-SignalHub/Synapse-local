@@ -26,20 +26,24 @@ jobs:
         mkdir certs
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out certs/selfsigned.crt -keyout certs/selfsigned.key -subj "/CN=localhost"
 
-    - name: Generate and configure Synapse config
-      run: |
-        mkdir synapse_data
-        docker run --rm -v $(pwd)/synapse_data:/data -e SYNAPSE_SERVER_NAME=localhost -e SYNAPSE_REPORT_STATS=no matrixdotorg/synapse:latest generate
-        cat << EOF >> synapse_data/homeserver.yaml
-database:
-  name: psycopg2
-  args:
-    user: synapse_user
-    password: signal123
-    database: synapse
-    host: db
-    cp_min: 5
-    cp_max: 10
-public_baseurl: http://localhost
-enable_registration: true
-enable_registration_without_verification: true
+      - name: Generate and configure Synapse config
+        run: |
+          mkdir -p synapse_data
+          docker run --rm -v $(pwd)/synapse_data:/data \
+            -e SYNAPSE_SERVER_NAME=localhost \
+            -e SYNAPSE_REPORT_STATS=no \
+            matrixdotorg/synapse:latest generate \
+            sh -c "cat <<EOF >> /data/homeserver.yaml
+            database:
+              name: psycopg2
+              args:
+                user: synapse_user
+                password: signal123
+                database: synapse
+                host: db
+                cp_min: 5
+                cp_max: 10
+            public_baseurl: http://localhost
+            enable_registration: true
+            enable_registration_without_verification: true
+            EOF"
