@@ -1,3 +1,4 @@
+---
 services:
   db:
     image: postgres:13
@@ -33,7 +34,7 @@ services:
       POSTGRES_DB: synapse
       POSTGRES_USER: synapse_user
       POSTGRES_PASSWORD: signal123
-    command: run  # Runs the server; generation happens automatically on first start if no config exists
+    command: run
 
   nginx:
     image: nginx:latest
