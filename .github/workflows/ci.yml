@@ -46,7 +46,8 @@ enable_registration_without_verification: true
 EOF
 
     - name: Build and start services
-      run: docker compose up -d
+      run: |
+        docker compose up -d
 
     - name: Test Synapse health
       run: |
@@ -56,4 +57,5 @@ EOF
 
     - name: Stop services
       if: always()
-      run: docker compose down
+      run: |
+        docker compose down
