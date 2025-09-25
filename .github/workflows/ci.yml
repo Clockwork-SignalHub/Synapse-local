@@ -20,7 +20,7 @@ jobs:
     - name: Lint YAML files
       run: |
         ls -l
-        docker run --rm -v "$(pwd)":/data cytopia/yamllint:latest yamllint /data/docker-compose.yml
+        docker run --rm -v "$(pwd)":/data cytopia/yamllint:latest /data/docker-compose.yml
 
     - name: Generate self-signed certificates
       run: |
