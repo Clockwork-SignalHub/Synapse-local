@@ -1,30 +1,36 @@
+---
 name: CI for Synapse Local Setup
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Lint YAML files
-      run: |
-        docker run --rm -v $(pwd):/data cytopia/yamllint:latest yamllint /data/docker-compose.yml
+      - name: Lint YAML
+        uses: ibiqlik/action-yamllint@v1
+        with:
+          format: colored
+          strict: false
 
-    - name: Generate self-signed certificates
-      run: |
-        mkdir certs
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out certs/selfsigned.crt -keyout certs/selfsigned.key -subj "/CN=localhost"
+      - name: Generate self-signed certificates
+        run: |
+          mkdir -p certs
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -out certs/selfsigned.crt \
+            -keyout certs/selfsigned.key \
+            -subj "/CN=localhost"
 
       - name: Generate and configure Synapse config
         run: |
