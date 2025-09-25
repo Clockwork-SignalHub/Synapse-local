@@ -25,21 +25,19 @@ services:
       - "8008:8008"
     volumes:
       - ./synapse_data:/data
-    environment:
-      SYNAPSE_SERVER_NAME: localhost
-      SYNAPSE_REPORT_STATS: "no"
-      SYNAPSE_CONFIG_PATH: /data/homeserver.yaml
-      POSTGRES_HOST: db
-      POSTGRES_DB: synapse
-      POSTGRES_USER: synapse_user
-      POSTGRES_PASSWORD: signal123
-    command: run  # Runs the server; generation happens automatically on first start if no config exists
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8008/_matrix/client/versions || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   nginx:
     image: nginx:latest
     container_name: synapse_nginx
     depends_on:
-      - synapse
+      synapse:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
