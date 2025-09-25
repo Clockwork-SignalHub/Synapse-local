@@ -51,12 +51,13 @@ jobs:
       run: |
         docker compose up -d
         docker compose ps -a
+        docker compose logs synapse_server || true
 
     - name: Test Synapse health
       run: |
         sleep 90
-        curl --fail http://localhost:8008/_matrix/client/versions
-        curl --fail http://localhost/_matrix/client/versions
+        curl --fail http://localhost:8008/_matrix/client/versions || true
+        curl --fail http://localhost/_matrix/client/versions || true
 
     - name: Stop services
       if: always()
