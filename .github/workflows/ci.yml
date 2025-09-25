@@ -25,6 +25,7 @@ jobs:
     - name: Generate self-signed certificates
       run: |
         mkdir certs
+        chmod -R 777 certs
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
           -out certs/selfsigned.crt \
           -keyout certs/selfsigned.key \
@@ -33,16 +34,18 @@ jobs:
     - name: Generate and configure Synapse config
       run: |
         mkdir synapse_data
+        chmod -R 777 synapse_data
         docker run --rm -v "$(pwd)/synapse_data:/data" \
           -e SYNAPSE_SERVER_NAME=localhost \
           -e SYNAPSE_REPORT_STATS=no \
           matrixdotorg/synapse:latest generate
         ls -l synapse_data
+        chmod 666 synapse_data/homeserver.yaml
         cat synapse_data/homeserver.yaml
         sed -i 's/database:\n  name: sqlite3\n  args:\n    database: \/data\/homeserver\.db/database:\n  name: psycopg2\n  args:\n    user: synapse_user\n    password: signal123\n    database: synapse\n    host: db\n    cp_min: 5\n    cp_max: 10/g' synapse_data/homeserver.yaml
         sed -i 's/#public_baseurl: .*/public_baseurl: http:\/\/localhost/g' synapse_data/homeserver.yaml
         sed -i 's/#enable_registration: false/enable_registration: true/g' synapse_data/homeserver.yaml
-        sed -i 's/#enable_registration_without_verification: false/enable_registration_without_verification: true/g' synapse_data/homeserver.yaml
+        sed -i '在天下的地方，sed -i 's/#enable_registration_without_verification: false/enable_registration_without_verification: true/g' synapse_data/homeserver.yaml
         cat synapse_data/homeserver.yaml
 
     - name: Build and start services
