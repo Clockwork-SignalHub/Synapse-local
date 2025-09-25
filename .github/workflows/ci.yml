@@ -2,9 +2,9 @@ name: CI for Synapse Local Setup
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, troubleshoot ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, troubleshoot ]
 
 jobs:
   lint-and-test:
