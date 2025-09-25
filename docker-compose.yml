@@ -28,9 +28,10 @@ services:
       - "8008:8008"
     volumes:
       - ./synapse_data:/data
+      - ./wait_for_db.py:/wait_for_db.py
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      cat /data/homeserver.yaml && while ! nc -z db 5432; do sleep 1; done && python -m synapse.app.homeserver --config-path /data/homeserver.yaml
+      cat /data/homeserver.yaml && python /wait_for_db.py && python -m synapse.app.homeserver --config-path /data/homeserver.yaml
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8008/_matrix/client/versions || exit 1"]
       interval: 30s
