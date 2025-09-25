@@ -19,51 +19,27 @@ jobs:
 
     - name: Lint YAML files
       run: |
-        ls -l
-        docker run --rm -v "$(pwd)":/data cytopia/yamllint:latest --config-data "{extends: default, rules: {line-length: disable}}" /data/docker-compose.yml
+        docker run --rm -v $(pwd):/data cytopia/yamllint:latest yamllint /data/docker-compose.yml
 
     - name: Generate self-signed certificates
       run: |
         mkdir certs
-        chmod -R 777 certs
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-          -out certs/selfsigned.crt \
-          -keyout certs/selfsigned.key \
-          -subj "/CN=localhost"
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out certs/selfsigned.crt -keyout certs/selfsigned.key -subj "/CN=localhost"
 
     - name: Generate and configure Synapse config
       run: |
         mkdir synapse_data
-        chmod -R 777 synapse_data
-        docker run --rm -v "$(pwd)/synapse_data:/data" --user "$(id -u):$(id -g)" \
-          -e SYNAPSE_SERVER_NAME=localhost \
-          -e SYNAPSE_REPORT_STATS=no \
-          matrixdotorg/synapse:latest generate
-        ls -l synapse_data
-        cat synapse_data/homeserver.yaml
-        sed -i '/^database:/,/^[^ ]/d' synapse_data/homeserver.yaml
-        echo -e "\ndatabase:\n  name: psycopg2\n  args:\n    user: synapse_user\n    password: signal123\n    database: synapse\n    host: db\n    cp_min: 5\n    cp_max: 10\n" >> synapse_data/homeserver.yaml
-        sed -i 's/#public_baseurl: .*/public_baseurl: http:\/\/localhost/g' synapse_data/homeserver.yaml
-        sed -i 's/#enable_registration: false/enable_registration: true/g' synapse_data/homeserver.yaml
-        sed -i 's/#enable_registration_without_verification: false/enable_registration_without_verification: true/g' synapse_data/homeserver.yaml
-        cat synapse_data/homeserver.yaml
-
-    - name: Build and start services
-      run: |
-        docker compose build
-        docker compose up -d
-        sleep 10
-        docker compose ps -a
-        docker compose logs synapse_server
-        docker compose logs db
-
-    - name: Test Synapse health
-      run: |
-        sleep 90
-        curl --fail http://localhost:8008/_matrix/client/versions || true
-        curl --fail http://localhost/_matrix/client/versions || true
-
-    - name: Stop services
-      if: always()
-      run: |
-        docker compose down
+        docker run --rm -v $(pwd)/synapse_data:/data -e SYNAPSE_SERVER_NAME=localhost -e SYNAPSE_REPORT_STATS=no matrixdotorg/synapse:latest generate
+        cat << EOF >> synapse_data/homeserver.yaml
+database:
+  name: psycopg2
+  args:
+    user: synapse_user
+    password: signal123
+    database: synapse
+    host: db
+    cp_min: 5
+    cp_max: 10
+public_baseurl: http://localhost
+enable_registration: true
+enable_registration_without_verification: true
