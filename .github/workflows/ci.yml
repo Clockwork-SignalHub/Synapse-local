@@ -30,7 +30,7 @@ jobs:
       run: |
         mkdir synapse_data
         docker run --rm -v $(pwd)/synapse_data:/data -e SYNAPSE_SERVER_NAME=localhost -e SYNAPSE_REPORT_STATS=no matrixdotorg/synapse:latest generate
-        cat << EOF >> synapse_data/homeserver.yaml
+        cat << 'EOF' >> synapse_data/homeserver.yaml
 database:
   name: psycopg2
   args:
@@ -43,3 +43,17 @@ database:
 public_baseurl: http://localhost
 enable_registration: true
 enable_registration_without_verification: true
+EOF
+
+    - name: Build and start services
+      run: docker compose up -d
+
+    - name: Test Synapse health
+      run: |
+        sleep 60
+        curl --fail http://localhost:8008/_matrix/client/versions
+        curl --fail http://localhost/_matrix/client/versions
+
+    - name: Stop services
+      if: always()
+      run: docker compose down
