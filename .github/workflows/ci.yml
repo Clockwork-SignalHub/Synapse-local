@@ -43,3 +43,4 @@ database:
 public_baseurl: http://localhost
 enable_registration: true
 enable_registration_without_verification: true
+EOF
