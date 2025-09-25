@@ -34,22 +34,22 @@ jobs:
 
       - name: Generate and configure Synapse config
         run: |
-          mkdir synapse_data
+          mkdir -p synapse_data
           docker run --rm -v $(pwd)/synapse_data:/data \
             -e SYNAPSE_SERVER_NAME=localhost \
             -e SYNAPSE_REPORT_STATS=no \
-            matrixdotorg/synapse:latest generate
-          cat <<EOF >> synapse_data/homeserver.yaml
-          database:
-            name: psycopg2
-            args:
-              user: synapse_user
-              password: signal123
-              database: synapse
-              host: db
-              cp_min: 5
-              cp_max: 10
-          public_baseurl: http://localhost
-          enable_registration: true
-          enable_registration_without_verification: true
-          EOF
+            matrixdotorg/synapse:latest generate \
+            sh -c "cat <<EOF >> /data/homeserver.yaml
+            database:
+              name: psycopg2
+              args:
+                user: synapse_user
+                password: signal123
+                database: synapse
+                host: db
+                cp_min: 5
+                cp_max: 10
+            public_baseurl: http://localhost
+            enable_registration: true
+            enable_registration_without_verification: true
+            EOF
