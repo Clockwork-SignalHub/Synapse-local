@@ -50,8 +50,10 @@ jobs:
     - name: Build and start services
       run: |
         docker compose up -d
+        sleep 10
         docker compose ps -a
-        docker compose logs synapse_server || true
+        docker compose logs synapse_server
+        docker compose logs db
 
     - name: Test Synapse health
       run: |
