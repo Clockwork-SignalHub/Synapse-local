@@ -1,7 +1,7 @@
 ---
 - name: Setup Matrix Synapse backend locally
   hosts: local
-  become: yes
+  become: no
 
   vars:
     project_path: "{{ playbook_dir }}/.."
@@ -12,14 +12,14 @@
 
   tasks:
 
-    - name: Install required packages
-      apt:
-        name:
-          - docker.io
-          - docker-compose
-          - openssl
-        state: present
-        update_cache: yes
+#    - name: Install required packages
+#      apt:
+#        name:
+#          - docker.io
+#          - docker-compose
+#          - openssl
+#        state: present
+#        update_cache: yes
 
     - name: Ensure project directories exist
       file:
@@ -40,14 +40,16 @@
         src: "../nginx.conf.j2"
         dest: "{{ project_path }}/nginx.conf"
 
-    - name: Generate self-signed certificate if not exists
+    - name: Generate Synapse configuration if not exists
       command: >
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048
-        -keyout {{ project_path }}/certs/selfsigned.key
-        -out {{ project_path }}/certs/selfsigned.crt
-        -subj "/CN={{ synapse_server_name }}"
+        docker run --rm
+        -v "{{ project_path }}/synapse_data:/data"
+        -e SYNAPSE_SERVER_NAME=localhost
+        -e SYNAPSE_REPORT_STATS=no
+        matrixdotorg/synapse:latest
+        generate
       args:
-        creates: "{{ project_path }}/certs/selfsigned.crt"
+        creates: "{{ project_path }}/synapse_data/homeserver.yaml"
 
     - name: Generate Synapse configuration if not exists
       command: >
