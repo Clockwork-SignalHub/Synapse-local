@@ -1,0 +1,81 @@
+---
+- name: Setup Matrix Synapse backend locally
+  hosts: local
+  become: yes
+
+  vars:
+    project_path: "{{ playbook_dir }}/.."
+    synapse_server_name: localhost
+    db_name: synapse
+    db_user: synapse_user
+    db_password: signal123
+
+  tasks:
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - openssl
+        state: present
+        update_cache: yes
+
+    - name: Ensure project directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ project_path }}/certs"
+        - "{{ project_path }}/synapse_data"
+
+    - name: Create docker-compose.yml from template
+      template:
+        src: "../docker-compose.yml.j2"
+        dest: "{{ project_path }}/docker-compose.yml"
+
+    - name: Create nginx.conf from template
+      template:
+        src: "../nginx.conf.j2"
+        dest: "{{ project_path }}/nginx.conf"
+
+    - name: Generate self-signed certificate if not exists
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout {{ project_path }}/certs/selfsigned.key
+        -out {{ project_path }}/certs/selfsigned.crt
+        -subj "/CN={{ synapse_server_name }}"
+      args:
+        creates: "{{ project_path }}/certs/selfsigned.crt"
+
+    - name: Generate Synapse configuration if not exists
+      command: >
+        docker run --rm -v {{ project_path }}/synapse_data:/data
+        -e SYNAPSE_SERVER_NAME={{ synapse_server_name }}
+        -e SYNAPSE_REPORT_STATS=no
+        matrixdotorg/synapse:latest generate
+      args:
+        creates: "{{ project_path }}/synapse_data/homeserver.yaml"
+
+    - name: Append database config to homeserver.yaml
+      blockinfile:
+        path: "{{ project_path }}/synapse_data/homeserver.yaml"
+        block: |
+          database:
+            name: psycopg2
+            args:
+              user: {{ db_user }}
+              password: {{ db_password }}
+              database: {{ db_name }}
+              host: db
+              cp_min: 5
+              cp_max: 10
+          public_baseurl: http://\{\{ synapse_server_name }}
+          enable_registration: true
+          enable_registration_without_verification: true
+
+    - name: Start backend with Docker Compose
+      command: docker compose up -d
+      args:
+        chdir: "{{ project_path }}"

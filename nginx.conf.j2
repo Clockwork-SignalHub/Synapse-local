@@ -2,7 +2,7 @@ events {}
 http {
     server {
         listen 80;
-        server_name localhost;
+        server_name {{ synapse_server_name }};
 
         location /_matrix {
             proxy_pass http://synapse:8008;
@@ -14,7 +14,7 @@ http {
 
     server {
         listen 443 ssl;
-        server_name localhost;
+        server_name {{ synapse_server_name }};
 
         ssl_certificate /etc/nginx/certs/selfsigned.crt;
         ssl_certificate_key /etc/nginx/certs/selfsigned.key;
