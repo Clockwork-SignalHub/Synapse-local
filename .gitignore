@@ -1,0 +1,3 @@
+synapse_data/homeserver.yaml
+synapse_data/*.signing.key
+synapse_data/*.log.config
