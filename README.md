@@ -54,10 +54,16 @@ ansible-playbook -i ansible/inventory.ini ansible/matrix_synapse.yml
 ```
 
 ## Verify backend setup
-Verify the docker container with `docker compose ps`.
+Verify the docker container with 
+```
+docker compose ps
+```
 
 You should see synapse_db, synpase_server, synapse_nginx.
-Test using `curl http://localhost:8008/_matrix/client/versions`
+Test using 
+```
+curl http://localhost:8008/_matrix/client/versions
+```
 
 Go to [this link](https://app.element.io/) and use `http://localhost` as the homeserver.
 Register a new user and test messaging by creating a new user.
