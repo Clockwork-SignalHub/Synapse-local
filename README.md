@@ -1,22 +1,64 @@
-# Local Synapse Setup
-1. Clone the repo.
-2. Generate config files:
-   ```bash
-   mkdir -p synapse_data
-   docker run --rm -v $(pwd)/synapse_data:/data -e SYNAPSE_SERVER_NAME=localhost -e SYNAPSE_REPORT_STATS=no matrixdotorg/synapse:latest generate
-3. Edit synapse_data/homeserver.yaml:
-   - Set database:
-     name: psycopg2
-     args:
-       user: synapse_user
-       password: signal123
-       database: synapse
-       host: db
-       cp_min: 5
-       cp_max: 10
+# Matrix Synapse backend server setup
+This repository contains the Matrix Synapse backend server. Follow the instructions to set up the server.
+If you encounter any issues or came up with fixes for a specific OS, let me know.
 
-   - Set public_baseurl: http://localhost
- 
-   - Set enable_registration: true and enable_registration_without_verification: true
-4. Run `docker compose up -d`
-5. Access via the Element broswer client using http://localhost as homeserver.
+## Prerequisites:
+- Git
+- Ansible
+- Docker
+- Docker Compose
+
+
+## Mac OS installation
+
+- Install Homebrew if you don't have it:
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+- Install the dependencies:
+```
+brew install ansible docker docker-compose
+```
+
+- Start Docker Desktop
+
+## Ubuntu/Debian installation
+```
+sudo apt update
+sudo apt install -y ansible docker.io docker-compose
+sudo systemctl enable docker --now
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+## Windows installation
+1. Install [Git for Windows](https://git-scm.com/download/win)
+2. Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+3. Enable [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)
+4. Install Ansible inside WSL2:
+```
+sudo apt update
+sudo apt install -y ansible
+```
+
+## Clone Repository
+```
+git clone git@github.com:Clockwork-SignalHub/Synapse-local.git
+cd synapse-local
+```
+
+## Run ansible
+```
+ansible-playbook -i ansible/inventory.ini ansible/matrix_synapse.yml
+```
+
+## Verify backend setup
+Verify the docker container with `docker compose ps`.
+
+You should see synapse_db, synpase_server, synapse_nginx.
+Test using `curl http://localhost:8008/_matrix/client/versions`
+
+Go to [this link](https://app.element.io/) and use `http://localhost` as the homeserver.
+Register a new user and test messaging by creating a new user.
+
