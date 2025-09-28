@@ -9,6 +9,7 @@
     db_name: synapse
     db_user: synapse_user
     db_password: signal123
+    synapse_image: "ghcr.io/Clockwork-SignalHub/synapse:latest"
 
   tasks:
 
@@ -56,7 +57,7 @@
         docker run --rm -v {{ project_path }}/synapse_data:/data
         -e SYNAPSE_SERVER_NAME={{ synapse_server_name }}
         -e SYNAPSE_REPORT_STATS=no
-        matrixdotorg/synapse:latest generate
+        {{ synapse_image }} generate
       args:
         creates: "{{ project_path }}/synapse_data/homeserver.yaml"
 
