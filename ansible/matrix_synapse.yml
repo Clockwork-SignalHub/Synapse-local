@@ -9,7 +9,7 @@
     db_name: synapse
     db_user: synapse_user
     db_password: signal123
-    synapse_image: "ghcr.io/Clockwork-SignalHub/synapse:latest"
+    synapse_image: "ghcr.io/clockwork-signalHub/synapse:latest"
 
   tasks:
 
