@@ -61,10 +61,10 @@
       args:
         creates: "{{ project_path }}/synapse_data/homeserver.yaml"
 
-    - name: Replace database config
+    - name: Replace database config in homeserver.yaml
       replace:
         path: "{{ project_path }}/synapse_data/homeserver.yaml"
-        regexp: '^database:.*'
+        regexp: '(?ms)^database:.*?(?=^[a-zA-Z0-9_]+:|\Z)'
         replace: |
           database:
             name: psycopg2
@@ -75,10 +75,9 @@
               host: db
               cp_min: 5
               cp_max: 10
-              public_baseurl: http://{{ synapse_server_name }}
-              enable_registration: true
-              enable_registration_without_verification: true
-            insertafter: '^database:'
+    public_baseurl: http://{{ synapse_server_name }}
+    enable_registration: true
+    enable_registration_without_verification: true
 
     - name: Start backend with Docker Compose
       command: docker compose up -d
