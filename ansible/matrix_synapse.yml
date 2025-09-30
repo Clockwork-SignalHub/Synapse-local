@@ -61,9 +61,10 @@
       args:
         creates: "{{ project_path }}/synapse_data/homeserver.yaml"
 
-    - name: Append database config to homeserver.yaml
+    - name: Set database config in homeserver.yaml
       blockinfile:
         path: "{{ project_path }}/synapse_data/homeserver.yaml"
+        marker: ""
         block: |
           database:
             name: psycopg2
@@ -74,9 +75,10 @@
               host: db
               cp_min: 5
               cp_max: 10
-          public_baseurl: http://\{\{ synapse_server_name }}
+          public_baseurl: http://{{ synapse_server_name }}
           enable_registration: true
           enable_registration_without_verification: true
+        insertafter: '^database:'
 
     - name: Start backend with Docker Compose
       command: docker compose up -d
