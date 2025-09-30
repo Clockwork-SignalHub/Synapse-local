@@ -31,6 +31,16 @@
         - "{{ project_path }}/certs"
         - "{{ project_path }}/synapse_data"
 
+    - name: Generate self-signed SSL certificate
+      command: >
+        openssl req -x509 -nodes -days 365
+        -newkey rsa:2048
+        -keyout "{{ project_path }}/certs/selfsigned.key"
+        -out "{{ project_path }}/certs/selfsigned.crt"
+        -subj "/CN=localhost"
+      args:
+        creates: "{{ project_path }}/certs/selfsigned.crt"
+
     - name: Create docker-compose.yml from template
       template:
         src: "../docker-compose.yml.j2"
