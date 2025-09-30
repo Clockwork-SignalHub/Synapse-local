@@ -1,6 +1,7 @@
 # Matrix Synapse backend server setup
 This repository contains the Matrix Synapse backend server. Follow the instructions to set up the server.
-If you encounter any issues or came up with fixes for a specific OS, let me know.
+If you encounter any issues or came up with fixes for a specific OS, let me know. For backend code/files 
+repository please view the [synapse](https://github.com/Clockwork-SignalHub/synapse) repository.
 
 ## Prerequisites:
 - Git
