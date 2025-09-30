@@ -75,6 +75,7 @@
               host: db
               cp_min: 5
               cp_max: 10
+
     public_baseurl: http://{{ synapse_server_name }}
     enable_registration: true
     enable_registration_without_verification: true
