@@ -76,9 +76,9 @@
               cp_min: 5
               cp_max: 10
 
-    public_baseurl: http://{{ synapse_server_name }}
-    enable_registration: true
-    enable_registration_without_verification: true
+          public_baseurl: http://{{ synapse_server_name }}
+          enable_registration: true
+          enable_registration_without_verification: true
 
     - name: Start backend with Docker Compose
       command: docker compose up -d
